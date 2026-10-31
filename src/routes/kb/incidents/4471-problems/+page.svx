@@ -1,0 +1,64 @@
+---
+layout: runbook
+title: '#4471 · what the reports show'
+owner: support desk
+status: open
+reviewed: 2026-10-31
+signature: 'ikyslyi · harness: Claude Opus 5.5'
+---
+
+<script>
+  import ProblemTable from '#lib/kb/ProblemTable.svelte';
+  import ProblemReports from '#lib/kb/ProblemReports.svelte';
+  import RenderStamp from '#lib/kb/RenderStamp.svelte';
+  import Callout from '#lib/kb/Callout.svelte';
+
+  const REPO = 'https://github.com/ikyslyi/mega-s1e03/issues';
+  const issues = { parser: `${REPO}/1`, hint: `${REPO}/2`, 'one-day': `${REPO}/3` };
+</script>
+
+[#4471](/kb/incidents/4471) says one issue, one fix. Its reports describe more than one problem.
+Every report was merged on its subject line ([decision 0001](/kb/decisions/0001-dedupe-by-subject)),
+and the subjects all describe a wrong date, so nobody read far enough to tell the problems apart.
+
+<Callout kind="warn">
+The queued parser fix closes only the first row. The others keep coming after it ships.
+</Callout>
+
+## The problems
+
+<ProblemTable ticket={4471} {issues} />
+
+## How each report was placed
+
+1. **One report, one id.** The export pages overlap, so some reports come twice. They are counted once.
+2. **Not a month flip → `one-day`.** The desk already noted these (`desk-notes.json`): the date moves by
+   one day, or two people in different time zones see different days. A day-first parser cannot do that.
+3. **Typed through a booking-v3 form → `hint`.** booking-v3 prints `MM/DD/YYYY` under its date field. People
+   type month first, as told, and the form reads the tenant's day-first order. The parser is not involved.
+4. **Everything else → `parser`.** Every tenant on file writes the day first, and the shared parser reads
+   month first.
+
+The intake tag is a guess from the reporter's browser, so it does not decide the problem. Many tags
+disagree with the tenant's form and channel.
+
+## The reports
+
+### `parser`
+
+<ProblemReports ticket={4471} problem="parser" />
+
+### `hint`
+
+<ProblemReports ticket={4471} problem="hint" />
+
+### `one-day`
+
+<ProblemReports ticket={4471} problem="one-day" />
+
+## For the desk
+
+- Close a problem only when its own ticket closes, not when #4471 does.
+- A shared subject line is not a shared cause. Read the body and the tenant's form before you merge.
+
+<RenderStamp {signature} />
