@@ -14,7 +14,11 @@ signature: 'ikyslyi · harness: Claude Opus 5.5'
   import Callout from '#lib/kb/Callout.svelte';
 
   const REPO = 'https://github.com/ikyslyi/mega-s1e03/issues';
-  const issues = { parser: `${REPO}/1`, hint: `${REPO}/2`, 'one-day': `${REPO}/3` };
+  const issues = {
+    parser: { url: `${REPO}/1`, state: 'closed · fixed 5 Oct' },
+    hint: { url: `${REPO}/2`, state: "closed · won't fix, form retired" },
+    'one-day': { url: `${REPO}/3`, state: 'open · no fix yet' },
+  };
 </script>
 
 [#4471](/kb/incidents/4471) says one issue, one fix. Its reports describe more than one problem.
@@ -22,7 +26,9 @@ Every report was merged on its subject line ([decision 0001](/kb/decisions/0001-
 and the subjects all describe a wrong date, so nobody read far enough to tell the problems apart.
 
 <Callout kind="warn">
-The queued parser fix closes only the first row. The others keep coming after it ships.
+Engineering closed #4471 on 5 October. The parser fix (`fix(dates): parse dd/mm for eu locales`) covers
+`parser`. `hint` is won't fix: the booking-v3 form is retired, so no new reports can come in through it.
+`one-day` has no fix. Those reports will keep coming, so its ticket stays open.
 </Callout>
 
 ## The problems
@@ -30,6 +36,9 @@ The queued parser fix closes only the first row. The others keep coming after it
 <ProblemTable ticket={4471} {issues} />
 
 ## How each report was placed
+
+Counted the desk's way (`causes.ts`): each report once, under the cause its tenant and channel give it.
+The one-day moves stay counted where they are filed and get a row of their own.
 
 1. **One report, one id.** The export pages overlap, so some reports come twice. They are counted once.
 2. **Not a month flip → `one-day`.** The desk already noted these (`desk-notes.json`): the date moves by
@@ -58,7 +67,7 @@ disagree with the tenant's form and channel.
 
 ## For the desk
 
-- Close a problem only when its own ticket closes, not when #4471 does.
+- Close a problem only when its own ticket closes, not when #4471 does. #4471 closed with `one-day` still open.
 - A shared subject line is not a shared cause. Read the body and the tenant's form before you merge.
 
 <RenderStamp {signature} />

@@ -1,14 +1,18 @@
 <script lang="ts">
   import reports from '#lib/data/reports-4471.json';
   import notes from '#lib/data/desk-notes.json';
-  import type { Report } from '#lib/kb/causes';
+  import { groupByCause, uniqueById, type Report } from '#lib/kb/causes';
   import { tenantOf } from '#lib/kb/locales';
-  import { splitTicket, type Problem } from '#lib/kb/problems';
 
   // The reports behind one problem, so the fix can be checked against each of them.
-  let { ticket, problem }: { ticket: number; problem: Problem } = $props();
+  let { ticket, problem }: { ticket: number; problem: string } = $props();
 
-  const rows = $derived(splitTicket(reports as Report[], ticket, tenantOf, notes.oneDayMove).groups.find((g) => g.problem === problem)?.reports ?? []);
+  // Same counting as ProblemTable: by cause, one-day moves listed apart and still filed by cause.
+  const rows = $derived.by(() => {
+    const merged = uniqueById(reports as Report[]).filter((r) => r.mergedInto === ticket);
+    if (problem === 'one-day') return merged.filter((r) => notes.oneDayMove.includes(r.id));
+    return groupByCause(merged, tenantOf).find((g) => g.cause === problem)?.reports ?? [];
+  });
 </script>
 
 <details>
